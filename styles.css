@@ -1,0 +1,51 @@
+
+/* Title */
+h1 {
+	text-transform: uppercase;
+	padding-left: 190px;
+	font-family: Optima, Tahoma, sans-serif;
+}
+
+/* Shaded rectangles around buttons */
+#rectangle {
+	background-color: lightgray;
+	float: left;
+	padding-top: 20px;
+	padding-bottom: 30px;
+	padding-left: 30px;
+	padding-right: 30px;
+	margin-left: 40px;
+	margin-right: 20px;
+	border-radius: 15px;
+	font-family: Optima, Tahoma, sans-serif;
+	font-size: 20px;
+}
+
+/* Buttons: GPA, Years of Work Experience, Referred, Graduate Degree */
+button {
+    background-color: blue;
+    color: white;
+    width: 180px;
+    height: 80px;
+    display: inline-block;
+    vertical-align: top;
+    text-align: center;
+    font-family: Optima, Tahoma, sans-serif;
+    font-size: 18px;
+}
+
+#GPA {
+	background-color: blue;
+}
+
+#Years {
+	background-color: gray;
+}
+
+#Referred {
+	background-color: gray;
+}
+
+#Degree {
+	background-color: gray;
+}
