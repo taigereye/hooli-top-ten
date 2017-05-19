@@ -1,4 +1,4 @@
-# README
+# Hooli TopTen
 
 This respository contains code for the front end of a dynamic webpage that visualizes applicant data for the Sales Rep position at Hooli.
 
