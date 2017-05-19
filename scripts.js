@@ -3,7 +3,7 @@ var app = angular.module("topTen", []);
 
 app.controller('MainController', ['$scope', '$http', '$filter', function($scope, $http, $filter) {
 	
-	// Set callback to run when Visualization API is loaded.
+	// Set callback to run when Visualization API loaded.
 	google.charts.setOnLoadCallback(visualize);
 
 	$scope.title = 'Hooli: Top 10 Sales Rep Candidates'; 
@@ -18,174 +18,6 @@ app.controller('MainController', ['$scope', '$http', '$filter', function($scope,
 
 	var url_post = 'http://predictive-hire-dev.us-west-2.elasticbeanstalk.com/token/'
 	var url_get = 'http://predictive-hire-dev.us-west-2.elasticbeanstalk.com/api/applications/'
-
-	
-	// Create column chart for top 10 candidates based on GPA.
-	function drawGPAChart(cands) {
-
-	    var data = new google.visualization.DataTable();
-	   
-	   	data.addColumn('string', 'Candidates');
-		data.addColumn('number', 'GPA');
-		
-		for (x = 0; x < cands.length; x++) {
-			var name = cands[x].candidate.first_name + " " + cands[x].candidate.last_name;
-			var GPA = cands[x].biodata.GPA;
-			data.addRow([name, GPA]);
-		}
-
-		// Set chart options.
-		var options = {'title': 'Top 10 Applicants By GPA',
-               	       'width': 1000,
-                       'height': 500,
-            		};		
-	
-	    // Instantiate and draw chart, passing in options and data.
-	    var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
-	    chart.draw(data, options);
-	}
-
-	// Create column chart for top 10 candidates based on Years of Work Experience.
-	function drawYearsChart(cands) {
-
-		var data = new google.visualization.DataTable();
-	   	
-	   	data.addColumn('string', 'Candidates');
-		data.addColumn('number', 'Years of Work Experience');
-		
-		for (x = 0; x < cands.length; x++) {
-			var name = cands[x].candidate.first_name + " " + cands[x].candidate.last_name;
-			var years = cands[x].biodata['Years of Work Experience'];
-			data.addRow([name, years]);
-		};
-		
-		// Set chart options.
-		var options = {'title': 'Top 10 Applicants By Years of Work Experience',
-               	       'width': 1000,
-                       'height': 500,                  
-            		};			
-	
-	    // Instantiate and draw chart, passing in options and data.
-		var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
-	    chart.draw(data, options);
-	}
-
-	function filtered(cands) {
-
-		var cands_new = [];
-
-		// If both filters clicked, find top ten candidates with referrals and degrees.
-		if ($scope.filters.referred && $scope.filters.degree) {
-			
-			for (x = 0; x < cands.length; x++) {
-				
-				if (cands_new.length == sample_size) {
-					return cands_new;
-				}
-				else {
-					if (cands[x].biodata['Referred'] && cands[x].biodata['Graduate Degree']) {
-						cands_new.push(cands[x]);
-					}
-				}
-			}
-		}
-		// If Referred filter clicked, find top ten candidates with referrals.
-		else if ($scope.filters.referred) {
-			
-			for (x = 0; x < cands.length; x++) {
-				
-				if (cands_new.length == sample_size) {
-					return cands_new;
-				}
-				else {
-					if (cands[x].biodata['Referred']) {
-						cands_new.push(cands[x]);
-					}
-				}
-			}
-		} 
-		// If Graduate Degree filter clicked, find top ten candidates with degrees.
-		else if ($scope.filters.degree) {
-			
-			for (x = 0; x < cands.length; x++) {
-				
-				if (cands_new.length == sample_size) {
-					return cands_new;
-				}
-				else {
-					if (cands[x].biodata['Graduate Degree']) {
-						cands_new.push(cands[x]);
-					}
-				}
-			}
-		}
-		// If neither filter clicked, find top ten candidates.
-		else {
-			var cands_new = cands.slice(0, sample_size);
-			return cands_new;
-		}
-	}
-
-	// If GPA button clicked, then draw GPA chart otherwise draw Years of Work Experience Chart.
-	function GPA_or_Years(cands) {
-		if ($scope.GPA) {
-			// Sort candidates by GPA
-			var cands_GPA = $filter('orderBy')(cands, "-biodata['GPA']")
-			// Filter candidats and draw appropriate chart.
-			var cands_new = filtered(cands_GPA);
-			drawGPAChart(cands_new);
-		} 
-		else {
-			// Sort candidates by Years of Work Experience
-			var cands_years = $filter('orderBy')(cands, "-biodata['Years of Work Experience']")
-			// Filter candidates and draw appropriate chart.
-			var cands_new = filtered(cands_years);
-			drawYearsChart(cands_new);
-		}
-	}
-
-	$scope.button_clicked = function(button) {
-		// Toggle button setting to GPA or Years of Work Experience.
-		if (button == 'GPA') {
-			$scope.GPA = true;
-			// Change color of button to blue (true) or gray (false).
-			document.getElementById("GPA").style.backgroundColor = "blue";
-			document.getElementById("Years").style.backgroundColor = "gray";
-		} 
-		else if (button == 'Years') {
-			$scope.GPA = false;
-			// Change color of button to blue (true) or gray (false).
-			document.getElementById("GPA").style.backgroundColor = "gray";
-			document.getElementById("Years").style.backgroundColor = "blue";
-		}
-
-		// Redraw chart depending on if GPA or Years of Work Experience button clicked.
-		GPA_or_Years($scope.cands_fifteen);
-	}
-
-	$scope.filter_clicked = function(filter) {
-		// Change filter setting to Referred and/or Graduate Degree.
-		if (filter == 'Referred') {
-			$scope.filters.referred = !($scope.filters.referred);
-			// Change color of button to blue (true) or gray (false).
-			if ($scope.filters.referred) {
-				document.getElementById("Referred").style.backgroundColor = "blue";
-			} else {
-				document.getElementById("Referred").style.backgroundColor = "gray";
-			}
-		} 
-		else if (filter == 'Degree') {
-			$scope.filters.degree = !($scope.filters.degree);
-			// Change color of button to blue (true) or gray (false).
-			if ($scope.filters.degree) {
-				document.getElementById("Degree").style.backgroundColor = "blue";
-			} else {
-				document.getElementById("Degree").style.backgroundColor = "gray";
-			}
-		}
-		// Redraw chart depending on if Referred and/or Graduate Degree filter clicked.
-		GPA_or_Years($scope.cands_fifteen);
-	}
 
 	$scope.cands_fifteen = [
 		{
@@ -1074,6 +906,186 @@ app.controller('MainController', ['$scope', '$http', '$filter', function($scope,
 	      ]
 	    }
 	];
+
+	
+	// Create column chart for top 10 candidates based on GPA.
+	function drawGPAChart(cands) {
+
+	    var data = new google.visualization.DataTable();
+	   
+	   	data.addColumn('string', 'Candidates');
+		data.addColumn('number', 'GPA');
+		
+		for (x = 0; x < cands.length; x++) {
+			var name = cands[x].candidate.first_name + " " + cands[x].candidate.last_name;
+			var GPA = cands[x].biodata.GPA;
+			data.addRow([name, GPA]);
+		}
+
+		// Set chart options.
+		var options = {'title': 'Top 10 Applicants By GPA',
+               	       'width': 1000,
+                       'height': 500,
+            		};		
+	
+	    // Instantiate and draw chart, passing in options and data.
+	    var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+	    chart.draw(data, options);
+	}
+
+	// Create column chart for top 10 candidates based on Years of Work Experience.
+	function drawYearsChart(cands) {
+
+		var data = new google.visualization.DataTable();
+	   	
+	   	data.addColumn('string', 'Candidates');
+		data.addColumn('number', 'Years of Work Experience');
+		
+		for (x = 0; x < cands.length; x++) {
+			var name = cands[x].candidate.first_name + " " + cands[x].candidate.last_name;
+			var years = cands[x].biodata['Years of Work Experience'];
+			data.addRow([name, years]);
+		};
+		
+		// Set chart options.
+		var options = {'title': 'Top 10 Applicants By Years of Work Experience',
+               	       'width': 1000,
+                       'height': 500,                  
+            		};			
+	
+	    // Instantiate and draw chart, passing in options and data.
+		var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+	    chart.draw(data, options);
+	}
+
+	function filtered(cands) {
+
+		var cands_filt = [];
+
+		// If both filters clicked, find top ten candidates with referrals and degrees.
+		if ($scope.filters.referred && $scope.filters.degree) {
+			
+			for (x = 0; x < cands.length; x++) {
+				
+				if (x == (cands.length - 1)) {
+					return cands_filt;
+				}
+
+				if (cands_filt.length == sample_size) {
+					return cands_filt;
+				}
+				else {
+					if (cands[x].biodata['Referred'] && cands[x].biodata['Graduate Degree']) {
+						cands_filt.push(cands[x]);
+					}
+				}
+			}
+		}
+		// If Referred filter clicked, find top ten candidates with referrals.
+		else if ($scope.filters.referred) {
+			
+			for (x = 0; x < cands.length; x++) {
+				
+				if (x == (cands.length - 1)) {
+					return cands_filt;
+				}
+					
+				if (cands_filt.length == sample_size) {
+					return cands_filt;
+				}
+				else {
+					if (cands[x].biodata['Referred']) {
+						cands_filt.push(cands[x]);
+					}
+				}
+			}
+		} 
+		// If Graduate Degree filter clicked, find top ten candidates with degrees.
+		else if ($scope.filters.degree) {
+			
+			for (x = 0; x < cands.length; x++) {
+				
+				if (x == (cands.length - 1)) {
+					return cands_filt;
+				}
+					
+				if (cands_filt.length == sample_size) {
+					return cands_filt;
+				}
+				else {
+					if (cands[x].biodata['Graduate Degree']) {
+						cands_filt.push(cands[x]);
+					}
+				}
+			}
+		}
+		// If neither filter clicked, find top ten candidates.
+		else {
+			var cands_filt = cands.slice(0, sample_size);
+			return cands_filt;
+		}
+	}
+
+	// If GPA button clicked, then draw GPA chart otherwise draw Years of Work Experience Chart.
+	function GPA_or_Years(cands) {
+		if ($scope.GPA) {
+			// Sort candidates by GPA
+			var cands_GPA = $filter('orderBy')(cands, "-biodata['GPA']")
+			// Filter candidats and draw appropriate chart.
+			var cands_new = filtered(cands_GPA);
+			drawGPAChart(cands_new);
+		} 
+		else {
+			// Sort candidates by Years of Work Experience
+			var cands_years = $filter('orderBy')(cands, "-biodata['Years of Work Experience']")
+			// Filter candidates and draw appropriate chart.
+			var cands_new = filtered(cands_years);
+			drawYearsChart(cands_new);
+		}
+	}
+
+	$scope.button_clicked = function(button) {
+		// Toggle button setting to GPA or Years of Work Experience.
+		if (button == 'GPA') {
+			$scope.GPA = true;
+			// Change color of button to blue (true) or gray (false).
+			document.getElementById("GPA").style.backgroundColor = "blue";
+			document.getElementById("Years").style.backgroundColor = "gray";
+		} 
+		else if (button == 'Years') {
+			$scope.GPA = false;
+			// Change color of button to blue (true) or gray (false).
+			document.getElementById("GPA").style.backgroundColor = "gray";
+			document.getElementById("Years").style.backgroundColor = "blue";
+		}
+
+		// Redraw chart depending on if GPA or Years of Work Experience button clicked.
+		GPA_or_Years($scope.cands_fifteen);
+	}
+
+	$scope.filter_clicked = function(filter) {
+		// Change filter setting to Referred and/or Graduate Degree.
+		if (filter == 'Referred') {
+			$scope.filters.referred = !($scope.filters.referred);
+			// Change color of button to blue (true) or gray (false).
+			if ($scope.filters.referred) {
+				document.getElementById("Referred").style.backgroundColor = "blue";
+			} else {
+				document.getElementById("Referred").style.backgroundColor = "gray";
+			}
+		} 
+		else if (filter == 'Degree') {
+			$scope.filters.degree = !($scope.filters.degree);
+			// Change color of button to blue (true) or gray (false).
+			if ($scope.filters.degree) {
+				document.getElementById("Degree").style.backgroundColor = "blue";
+			} else {
+				document.getElementById("Degree").style.backgroundColor = "gray";
+			}
+		}
+		// Redraw chart depending on if Referred and/or Graduate Degree filter clicked.
+		GPA_or_Years($scope.cands_fifteen);
+	}
 
 	// Draw column charts for top 10 applicants based on which buttons/filters clicked.
 	function visualize() {
